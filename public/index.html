@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain OAuth & Airtable Sync</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>Domain OAuth & Airtable Sync</h1>
+
+  <!-- Authentication Button -->
+  <button id="auth-btn">Authenticate with Domain</button>
+
+  <!-- Sync Data Button -->
+  <button id="sync-btn" style="margin-left: 10px;" disabled>Sync Data to Airtable</button>
+
+  <!-- Status Message -->
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('auth-btn').addEventListener('click', () => {
+      // Redirect to the authentication endpoint
+      window.location.href = '/auth';
+    });
+
+    document.getElementById('sync-btn').addEventListener('click', async () => {
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = 'Syncing data to Airtable...';
+      statusDiv.className = '';
+
+      try {
+        const response = await fetch('/fetch-data');
+        const result = await response.json();
+
+        if (result.success) {
+          statusDiv.innerHTML = result.message;
+          statusDiv.className = 'success';
+        } else {
+          throw new Error(result.message || 'Failed to sync data.');
+        }
+      } catch (error) {
+        statusDiv.innerHTML = error.message;
+        statusDiv.className = 'error';
+      }
+    });
+
+    // Enable the "Sync Data" button after authentication
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('authenticated')) {
+      document.getElementById('sync-btn').disabled = false;
+    }
+  </script>
+</body>
+</html>
